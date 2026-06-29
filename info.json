@@ -1,14 +1,13 @@
 {
-  "name": "Factorio-mod",
+  "name": "FHeliopause-Foundry",
   "version": "1.0.1",
   "factorio_version": "2.1",
-  "title": "Factorio-mod",
+  "title": "Heliopause Foundry",
   "author": "Freaky_Lord",
-  "description": "X",
+  "description": "You discover that there is an old industrial zone outside Nauvis: the Heliopause Foundry, a semi-abandoned automated foundry on the edge of the solar system. It was built to process materials that are produced only where stellar plasma and interstellar dust collide. Your goal is to reconstruct this technology and establish your own interstellar production chain.",
   "homepage": "https://github.com/LordFreaky/Factorio-mod",
   "dependencies": [
     "base >= 2.1",
-    "? RecipeBook >= 4.0.2",
-	  "! space-age"
+    "? RecipeBook >= 4.0.2"
   ]
 }
