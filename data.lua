@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "heliopause-foundry-signal-from-space",
-    icon = "__base__/graphics/technology/rocket-silo.png",
+    icon = "__heliopause-foundry__/graphics/technology/space-signal.png",
     icon_size = 256,
 
     enabled = false,
