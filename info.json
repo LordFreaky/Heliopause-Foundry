@@ -7,7 +7,7 @@
   "description": "X",
   "homepage": "https://github.com/LordFreaky/Factorio-mod",
   "dependencies": [
-    "base >= 2.0.1",
+    "base >= 2.1",
     "? RecipeBook >= 4.0.2",
 	  "! space-age"
   ]
