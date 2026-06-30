@@ -190,14 +190,26 @@ data:extend({
   },
 
   {
-    type = "technology",
-    name = foundry_discovery,
-    icon = foundry_base_icon,
-    icon_size = foundry_base_icon_size,
+  type = "technology",
+  name = foundry_discovery,
 
-    prerequisites = {
-      "stellar-discovery-solar-system-edge"
+  icons = {
+    {
+      icon = foundry_base_icon,
+      icon_size = foundry_base_icon_size
     },
+    {
+      icon = "__space-age__/graphics/icons/planet-route.png",
+      icon_size = 64,
+      scale = 0.65,
+      shift = {-72, 72},
+      draw_background = true
+    }
+  },
+
+  prerequisites = {
+    "planet-discovery-aquilo"
+  },
 
     effects = {
       {
