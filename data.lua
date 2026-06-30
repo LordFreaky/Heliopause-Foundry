@@ -72,6 +72,7 @@ data:extend({
         space_location = foundry_base,
         icon = foundry_base_icon,
         icon_size = foundry_base_icon_size
+        use_icon_overlay_constant = true
       }
     },
 
