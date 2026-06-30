@@ -8,6 +8,8 @@ data:extend({
     enabled = false,
     visible_when_disabled = true,
 
+    prerequisites = {"radar"},
+
     research_trigger = {
       type = "scripted"
     },
