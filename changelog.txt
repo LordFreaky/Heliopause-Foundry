@@ -1,4 +1,20 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.2
+Date: 2026-06-30
+  Features:
+    - Added the Heliopause Foundry Base as a Space Age location based on Vulcanus.
+    - Added space connections from Aquilo to the Foundry Base and from the Foundry Base to the solar system edge.
+    - Added the Foundry Base discovery technology.
+  Changes:
+    - Reduced the Foundry Base surface to 384 x 384 tiles.
+    - Shaped the Foundry Base into a circular playable area with a radius of 192 tiles.
+    - Made the solar system edge discovery require the Foundry Base discovery.
+    - Updated Space Age mod dependencies for Factorio 2.1.
+  Bugfixes:
+    - Removed duplicate data stage logic by deleting data-updates.lua.
+    - Fixed duplicate prototype definitions in data.lua.
+    - Fixed the unlock-space-location effect definition.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.1
 Date: 2026-06-29
   Features:
