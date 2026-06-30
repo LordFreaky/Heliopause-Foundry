@@ -8,8 +8,6 @@ data:extend({
     enabled = false,
     visible_when_disabled = true,
 
-    prerequisites = {"rocket-silo"},
-
     research_trigger = {
       type = "scripted"
     },
