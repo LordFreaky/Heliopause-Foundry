@@ -10,6 +10,13 @@ local foundry_base_icon_size = 1254
 local foundry_base_radius = 192
 local foundry_base_diameter = foundry_base_radius * 2
 
+local foundry_resource_replacements = {
+  ["coal"] = "heliopause-foundry-carbonized-regolith",
+  ["tungsten-ore"] = "heliopause-foundry-slag-deposit",
+  ["calcite"] = "heliopause-foundry-catalyst-crystal",
+  ["sulfuric-acid-geyser"] = "heliopause-foundry-corrosive-vent"
+}
+
 local function add_prerequisite(technology_name, prerequisite_name)
   local technology = data.raw.technology[technology_name]
   if not technology then return end
@@ -24,6 +31,47 @@ local function add_prerequisite(technology_name, prerequisite_name)
 
   table.insert(technology.prerequisites, prerequisite_name)
 end
+
+local function create_foundry_resource(source_name, target_name)
+  local source = data.raw.resource[source_name]
+
+  if not source then
+    error("Missing resource prototype: " .. source_name)
+  end
+
+  local resource = table.deepcopy(source)
+
+  resource.name = target_name
+  resource.localised_name = {"entity-name." .. target_name}
+  resource.localised_description = {"entity-description." .. target_name}
+
+  return resource
+end
+
+local function replace_map_gen_resource(map_gen_settings, source_name, target_name)
+  map_gen_settings.autoplace_settings = map_gen_settings.autoplace_settings or {}
+  map_gen_settings.autoplace_settings.entity = map_gen_settings.autoplace_settings.entity or {}
+
+  local entity_autoplace = map_gen_settings.autoplace_settings.entity
+  entity_autoplace.settings = entity_autoplace.settings or {}
+
+  local source_settings = entity_autoplace.settings[source_name]
+
+  entity_autoplace.settings[target_name] = table.deepcopy(source_settings or {})
+  entity_autoplace.settings[source_name] = {
+    frequency = 0,
+    size = 0,
+    richness = 0
+  }
+end
+
+local foundry_resource_prototypes = {}
+
+for source_name, target_name in pairs(foundry_resource_replacements) do
+  foundry_resource_prototypes[#foundry_resource_prototypes + 1] = create_foundry_resource(source_name, target_name)
+end
+
+data:extend(foundry_resource_prototypes)
 
 data:extend({
   {
@@ -76,6 +124,10 @@ foundry_planet.map_gen_settings.height = foundry_base_diameter
 foundry_planet.map_gen_settings.starting_points = {
   {x = 0, y = 0}
 }
+
+for source_name, target_name in pairs(foundry_resource_replacements) do
+  replace_map_gen_resource(foundry_planet.map_gen_settings, source_name, target_name)
+end
 
 data:extend({
   foundry_planet,
