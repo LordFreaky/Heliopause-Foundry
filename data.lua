@@ -24,6 +24,13 @@ local foundry_resource_graphics = {
   ["heliopause-foundry-corrosive-vent"] = "__heliopause-foundry__/graphics/resources/corrosive-vent.png"
 }
 
+local foundry_resource_map_colors = {
+  ["heliopause-foundry-carbonized-regolith"] = {r = 0.08, g = 0.07, b = 0.06},
+  ["heliopause-foundry-slag-deposit"] = {r = 0.35, g = 0.30, b = 0.26},
+  ["heliopause-foundry-catalyst-crystal"] = {r = 0.95, g = 0.72, b = 0.32},
+  ["heliopause-foundry-corrosive-vent"] = {r = 0.90, g = 0.75, b = 0.12}
+}
+
 local function add_prerequisite(technology_name, prerequisite_name)
   local technology = data.raw.technology[technology_name]
   if not technology then return end
@@ -51,6 +58,7 @@ local function create_foundry_resource(source_name, target_name)
   resource.name = target_name
   resource.localised_name = {"entity-name." .. target_name}
   resource.localised_description = {"entity-description." .. target_name}
+  resource.map_color = foundry_resource_map_colors[target_name] or resource.map_color
 
   local graphic = foundry_resource_graphics[target_name]
 
