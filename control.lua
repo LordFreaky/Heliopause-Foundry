@@ -18,9 +18,36 @@ local foundry_resource_replacements = {
 
 local fallback_resource_amounts = {
   ["coal"] = 3000,
-  ["tungsten-ore"] = 2000,
-  ["calcite"] = 2000,
+  ["tungsten-ore"] = 2500,
+  ["calcite"] = 2500,
   ["sulfuric-acid-geyser"] = 100000
+}
+
+local foundry_guaranteed_resource_patches = {
+  {
+    name = "heliopause-foundry-carbonized-regolith",
+    center = {x = -64, y = -48},
+    radius = 14,
+    amount = 4000
+  },
+  {
+    name = "heliopause-foundry-catalyst-crystal",
+    center = {x = 64, y = -48},
+    radius = 10,
+    amount = 2500
+  },
+  {
+    name = "heliopause-foundry-slag-deposit",
+    center = {x = -64, y = 64},
+    radius = 10,
+    amount = 2500
+  },
+  {
+    name = "heliopause-foundry-corrosive-vent",
+    center = {x = 64, y = 64},
+    radius = 3,
+    amount = 100000
+  }
 }
 
 local min_signal_delay = 5 * 60 * 60
@@ -268,6 +295,15 @@ local function create_resource_entity(surface, name, position, amount, initial_a
   end)
 
   if not ok or not created or not created.valid then
+    ok, created = pcall(function()
+      return surface.create_entity({
+        name = name,
+        position = position
+      })
+    end)
+  end
+
+  if not ok or not created or not created.valid then
     return nil
   end
 
@@ -321,6 +357,74 @@ local function replace_foundry_resources_in_area(surface, area)
   end
 end
 
+local function is_inside_foundry_circle(position)
+  local dx = position.x or position[1] or 0
+  local dy = position.y or position[2] or 0
+
+  return dx * dx + dy * dy <= foundry_base_radius_squared
+end
+
+local function resource_patch_exists(surface, patch)
+  local radius = patch.radius + 4
+  local center = patch.center
+
+  local resources = surface.find_entities_filtered({
+    area = {
+      left_top = {
+        x = center.x - radius,
+        y = center.y - radius
+      },
+      right_bottom = {
+        x = center.x + radius,
+        y = center.y + radius
+      }
+    },
+    type = "resource",
+    name = patch.name
+  })
+
+  return #resources > 0
+end
+
+local function create_foundry_resource_patch(surface, patch)
+  if not surface or not surface.valid then return end
+  if surface.name ~= foundry_base_surface then return end
+  if resource_patch_exists(surface, patch) then return end
+
+  local center = patch.center
+  local radius_squared = patch.radius * patch.radius
+
+  for x = center.x - patch.radius, center.x + patch.radius do
+    for y = center.y - patch.radius, center.y + patch.radius do
+      local dx = x - center.x
+      local dy = y - center.y
+      local position = {x = x, y = y}
+
+      if dx * dx + dy * dy <= radius_squared and is_inside_foundry_circle(position) then
+        create_resource_entity(
+          surface,
+          patch.name,
+          position,
+          patch.amount,
+          patch.amount
+        )
+      end
+    end
+  end
+end
+
+local function create_foundry_guaranteed_resource_patches(surface)
+  if not surface or not surface.valid then return end
+  if surface.name ~= foundry_base_surface then return end
+
+  surface.request_to_generate_chunks({0, 0}, 8)
+  surface.force_generate_chunk_requests()
+
+  for _, patch in pairs(foundry_guaranteed_resource_patches) do
+    create_foundry_resource_patch(surface, patch)
+  end
+end
+
 local function apply_foundry_circle_to_area(surface, area)
   if not surface or not surface.valid then return end
   if surface.name ~= foundry_base_surface then return end
@@ -334,10 +438,9 @@ local function apply_foundry_circle_to_area(surface, area)
 
   for x = min_x, max_x do
     for y = min_y, max_y do
-      local dx = x + 0.5
-      local dy = y + 0.5
+      local position = {x = x + 0.5, y = y + 0.5}
 
-      if dx * dx + dy * dy > foundry_base_radius_squared then
+      if not is_inside_foundry_circle(position) then
         tiles[#tiles + 1] = {
           name = foundry_outside_tile,
           position = {x = x, y = y}
@@ -377,6 +480,7 @@ end
 local function process_foundry_surface()
   local surface = game.surfaces[foundry_base_surface]
   process_foundry_existing_chunks(surface)
+  create_foundry_guaranteed_resource_patches(surface)
 end
 
 local function setup()
@@ -400,6 +504,7 @@ end)
 script.on_event(defines.events.on_surface_created, function(event)
   local surface = game.surfaces[event.surface_index]
   process_foundry_existing_chunks(surface)
+  create_foundry_guaranteed_resource_patches(surface)
 end)
 
 script.on_event(defines.events.on_player_changed_surface, function(event)
@@ -407,6 +512,7 @@ script.on_event(defines.events.on_player_changed_surface, function(event)
   if not player or not player.valid then return end
 
   process_foundry_existing_chunks(player.surface)
+  create_foundry_guaranteed_resource_patches(player.surface)
 end)
 
 script.on_event(defines.events.on_chunk_generated, function(event)
