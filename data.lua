@@ -66,6 +66,9 @@ local function create_foundry_resource(source_name, target_name)
         scale = 0.125
       }
     }
+
+    resource.stage_counts = {1}
+    resource.stages_effect = nil
   end
 
   return resource
