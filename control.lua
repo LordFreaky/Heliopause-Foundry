@@ -16,6 +16,13 @@ local foundry_resource_replacements = {
   ["sulfuric-acid-geyser"] = "heliopause-foundry-corrosive-vent"
 }
 
+local fallback_resource_amounts = {
+  ["coal"] = 3000,
+  ["tungsten-ore"] = 2000,
+  ["calcite"] = 2000,
+  ["sulfuric-acid-geyser"] = 100000
+}
+
 local min_signal_delay = 5 * 60 * 60
 local max_signal_delay = 20 * 60 * 60
 local max_unpowered_radar_ticks = 30 * 60
@@ -227,7 +234,7 @@ local function check_signal_unlock()
   end
 end
 
-local function get_resource_amount(resource)
+local function get_resource_amount(resource, source_name)
   local ok, amount = pcall(function()
     return resource.amount
   end)
@@ -236,7 +243,41 @@ local function get_resource_amount(resource)
     return amount
   end
 
-  return 1
+  return fallback_resource_amounts[source_name] or 1000
+end
+
+local function get_resource_initial_amount(resource)
+  local ok, initial_amount = pcall(function()
+    return resource.initial_amount
+  end)
+
+  if ok and initial_amount and initial_amount > 0 then
+    return initial_amount
+  end
+
+  return nil
+end
+
+local function create_resource_entity(surface, name, position, amount, initial_amount)
+  local ok, created = pcall(function()
+    return surface.create_entity({
+      name = name,
+      position = position,
+      amount = amount
+    })
+  end)
+
+  if not ok or not created or not created.valid then
+    return nil
+  end
+
+  if initial_amount then
+    pcall(function()
+      created.initial_amount = initial_amount
+    end)
+  end
+
+  return created
 end
 
 local function replace_foundry_resources_in_area(surface, area)
@@ -253,15 +294,28 @@ local function replace_foundry_resources_in_area(surface, area)
     for _, resource in pairs(resources) do
       if resource.valid then
         local position = resource.position
-        local amount = get_resource_amount(resource)
+        local amount = get_resource_amount(resource, source_name)
+        local initial_amount = get_resource_initial_amount(resource)
 
         resource.destroy({raise_destroy = false})
 
-        surface.create_entity({
-          name = target_name,
-          position = position,
-          amount = amount
-        })
+        local created = create_resource_entity(
+          surface,
+          target_name,
+          position,
+          amount,
+          initial_amount
+        )
+
+        if not created then
+          create_resource_entity(
+            surface,
+            source_name,
+            position,
+            amount,
+            initial_amount
+          )
+        end
       end
     end
   end
