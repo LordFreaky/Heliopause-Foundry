@@ -60,6 +60,8 @@ local function create_foundry_resource(source_name, target_name)
   resource.localised_description = {"entity-description." .. target_name}
   resource.map_color = foundry_resource_map_colors[target_name] or resource.map_color
 
+  resource.autoplace = nil
+
   local graphic = foundry_resource_graphics[target_name]
 
   if graphic then
@@ -80,28 +82,6 @@ local function create_foundry_resource(source_name, target_name)
   end
 
   return resource
-end
-
-local function replace_map_gen_resource(map_gen_settings, source_name, target_name)
-  map_gen_settings.autoplace_settings = map_gen_settings.autoplace_settings or {}
-  map_gen_settings.autoplace_settings.entity = map_gen_settings.autoplace_settings.entity or {}
-
-  local entity_autoplace = map_gen_settings.autoplace_settings.entity
-  entity_autoplace.settings = entity_autoplace.settings or {}
-
-  local source_settings = entity_autoplace.settings[source_name]
-
-  entity_autoplace.settings[target_name] = table.deepcopy(source_settings or {
-    frequency = 1,
-    size = 1,
-    richness = 1
-  })
-
-  entity_autoplace.settings[source_name] = {
-    frequency = 0,
-    size = 0,
-    richness = 0
-  }
 end
 
 local foundry_resource_prototypes = {}
@@ -163,10 +143,6 @@ foundry_planet.map_gen_settings.height = foundry_base_diameter
 foundry_planet.map_gen_settings.starting_points = {
   {x = 0, y = 0}
 }
-
-for source_name, target_name in pairs(foundry_resource_replacements) do
-  replace_map_gen_resource(foundry_planet.map_gen_settings, source_name, target_name)
-end
 
 data:extend({
   foundry_planet,
