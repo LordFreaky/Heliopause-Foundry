@@ -24,6 +24,16 @@ local foundry_resource_graphics = {
   ["heliopause-foundry-corrosive-vent"] = "__heliopause-foundry__/graphics/resources/corrosive-vent.png"
 }
 
+local foundry_item_icons = {
+  ["heliopause-foundry-carbonized-regolith"] = "__heliopause-foundry__/graphics/icons/item/carbonized-regolith-icon.png",
+  ["heliopause-foundry-slag-deposit"] = "__heliopause-foundry__/graphics/icons/item/slag-deposit-icon.png",
+  ["heliopause-foundry-catalyst-crystal"] = "__heliopause-foundry__/graphics/icons/item/catalyst-crystal-icon.png"
+}
+
+local foundry_fluid_icons = {
+  ["heliopause-foundry-corrosive-coolant"] = "__heliopause-foundry__/graphics/icons/fluid/corrosive-coolant-fluid-icon.png"
+}
+
 local foundry_resource_map_colors = {
   ["heliopause-foundry-carbonized-regolith"] = {r = 0.08, g = 0.07, b = 0.06},
   ["heliopause-foundry-slag-deposit"] = {r = 0.35, g = 0.30, b = 0.26},
@@ -181,17 +191,17 @@ local foundry_items = {
   create_foundry_item(
     "coal",
     "heliopause-foundry-carbonized-regolith",
-    foundry_resource_graphics["heliopause-foundry-carbonized-regolith"]
+    foundry_item_icons["heliopause-foundry-carbonized-regolith"]
   ),
   create_foundry_item(
     "tungsten-ore",
     "heliopause-foundry-slag-deposit",
-    foundry_resource_graphics["heliopause-foundry-slag-deposit"]
+    foundry_item_icons["heliopause-foundry-slag-deposit"]
   ),
   create_foundry_item(
     "calcite",
     "heliopause-foundry-catalyst-crystal",
-    foundry_resource_graphics["heliopause-foundry-catalyst-crystal"]
+    foundry_item_icons["heliopause-foundry-catalyst-crystal"]
   )
 }
 
@@ -199,7 +209,7 @@ local foundry_fluids = {
   create_foundry_fluid(
     "sulfuric-acid",
     "heliopause-foundry-corrosive-coolant",
-    foundry_resource_graphics["heliopause-foundry-corrosive-vent"]
+    foundry_fluid_icons["heliopause-foundry-corrosive-coolant"]
   )
 }
 
@@ -217,7 +227,7 @@ data:extend({
   {
     type = "recipe",
     name = "heliopause-foundry-process-carbonized-regolith",
-    icon = foundry_resource_graphics["heliopause-foundry-carbonized-regolith"],
+    icon = foundry_item_icons["heliopause-foundry-carbonized-regolith"],
     icon_size = 512,
     enabled = false,
     category = "crafting",
@@ -232,7 +242,7 @@ data:extend({
   {
     type = "recipe",
     name = "heliopause-foundry-process-slag-deposit",
-    icon = foundry_resource_graphics["heliopause-foundry-slag-deposit"],
+    icon = foundry_item_icons["heliopause-foundry-slag-deposit"],
     icon_size = 512,
     enabled = false,
     category = "crafting",
@@ -247,7 +257,7 @@ data:extend({
   {
     type = "recipe",
     name = "heliopause-foundry-process-catalyst-crystal",
-    icon = foundry_resource_graphics["heliopause-foundry-catalyst-crystal"],
+    icon = foundry_item_icons["heliopause-foundry-catalyst-crystal"],
     icon_size = 512,
     enabled = false,
     category = "crafting",
@@ -262,7 +272,7 @@ data:extend({
   {
     type = "recipe",
     name = "heliopause-foundry-process-corrosive-coolant",
-    icon = foundry_resource_graphics["heliopause-foundry-corrosive-vent"],
+    icon = foundry_fluid_icons["heliopause-foundry-corrosive-coolant"],
     icon_size = 512,
     enabled = false,
     category = "chemistry",
