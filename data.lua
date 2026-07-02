@@ -31,6 +31,25 @@ local foundry_resource_map_colors = {
   ["heliopause-foundry-corrosive-vent"] = {r = 0.90, g = 0.75, b = 0.12}
 }
 
+local foundry_resource_products = {
+  ["heliopause-foundry-carbonized-regolith"] = {
+    type = "item",
+    name = "heliopause-foundry-carbonized-regolith"
+  },
+  ["heliopause-foundry-slag-deposit"] = {
+    type = "item",
+    name = "heliopause-foundry-slag-deposit"
+  },
+  ["heliopause-foundry-catalyst-crystal"] = {
+    type = "item",
+    name = "heliopause-foundry-catalyst-crystal"
+  },
+  ["heliopause-foundry-corrosive-vent"] = {
+    type = "fluid",
+    name = "heliopause-foundry-corrosive-coolant"
+  }
+}
+
 local function add_prerequisite(technology_name, prerequisite_name)
   local technology = data.raw.technology[technology_name]
   if not technology then return end
@@ -46,6 +65,79 @@ local function add_prerequisite(technology_name, prerequisite_name)
   table.insert(technology.prerequisites, prerequisite_name)
 end
 
+local function create_foundry_item(source_name, target_name, icon)
+  local source = data.raw.item[source_name]
+
+  if not source then
+    error("Missing item prototype: " .. source_name)
+  end
+
+  local item = table.deepcopy(source)
+
+  item.name = target_name
+  item.localised_name = {"item-name." .. target_name}
+  item.localised_description = {"item-description." .. target_name}
+  item.icons = nil
+  item.pictures = nil
+  item.icon = icon
+  item.icon_size = 512
+  item.order = "z[heliopause-foundry]-" .. target_name
+
+  return item
+end
+
+local function create_foundry_fluid(source_name, target_name, icon)
+  local source = data.raw.fluid[source_name]
+
+  if not source then
+    error("Missing fluid prototype: " .. source_name)
+  end
+
+  local fluid = table.deepcopy(source)
+
+  fluid.name = target_name
+  fluid.localised_name = {"fluid-name." .. target_name}
+  fluid.localised_description = {"fluid-description." .. target_name}
+  fluid.icons = nil
+  fluid.icon = icon
+  fluid.icon_size = 512
+  fluid.order = "z[heliopause-foundry]-" .. target_name
+
+  return fluid
+end
+
+local function set_resource_product(resource, target_name)
+  local product = foundry_resource_products[target_name]
+  if not product then return end
+
+  resource.minable = table.deepcopy(resource.minable or {})
+
+  if product.type == "item" then
+    resource.minable.result = product.name
+    resource.minable.results = nil
+    return
+  end
+
+  resource.minable.result = nil
+
+  if resource.minable.results then
+    for _, result in pairs(resource.minable.results) do
+      if result.type == "fluid" then
+        result.name = product.name
+        return
+      end
+    end
+  end
+
+  resource.minable.results = {
+    {
+      type = "fluid",
+      name = product.name,
+      amount = 10
+    }
+  }
+end
+
 local function create_foundry_resource(source_name, target_name)
   local source = data.raw.resource[source_name]
 
@@ -59,8 +151,9 @@ local function create_foundry_resource(source_name, target_name)
   resource.localised_name = {"entity-name." .. target_name}
   resource.localised_description = {"entity-description." .. target_name}
   resource.map_color = foundry_resource_map_colors[target_name] or resource.map_color
-
   resource.autoplace = nil
+
+  set_resource_product(resource, target_name)
 
   local graphic = foundry_resource_graphics[target_name]
 
@@ -84,13 +177,104 @@ local function create_foundry_resource(source_name, target_name)
   return resource
 end
 
+local foundry_items = {
+  create_foundry_item(
+    "coal",
+    "heliopause-foundry-carbonized-regolith",
+    foundry_resource_graphics["heliopause-foundry-carbonized-regolith"]
+  ),
+  create_foundry_item(
+    "tungsten-ore",
+    "heliopause-foundry-slag-deposit",
+    foundry_resource_graphics["heliopause-foundry-slag-deposit"]
+  ),
+  create_foundry_item(
+    "calcite",
+    "heliopause-foundry-catalyst-crystal",
+    foundry_resource_graphics["heliopause-foundry-catalyst-crystal"]
+  )
+}
+
+local foundry_fluids = {
+  create_foundry_fluid(
+    "sulfuric-acid",
+    "heliopause-foundry-corrosive-coolant",
+    foundry_resource_graphics["heliopause-foundry-corrosive-vent"]
+  )
+}
+
 local foundry_resource_prototypes = {}
 
 for source_name, target_name in pairs(foundry_resource_replacements) do
   foundry_resource_prototypes[#foundry_resource_prototypes + 1] = create_foundry_resource(source_name, target_name)
 end
 
+data:extend(foundry_items)
+data:extend(foundry_fluids)
 data:extend(foundry_resource_prototypes)
+
+data:extend({
+  {
+    type = "recipe",
+    name = "heliopause-foundry-process-carbonized-regolith",
+    icon = foundry_resource_graphics["heliopause-foundry-carbonized-regolith"],
+    icon_size = 512,
+    enabled = false,
+    category = "crafting",
+    energy_required = 1,
+    ingredients = {
+      {type = "item", name = "heliopause-foundry-carbonized-regolith", amount = 1}
+    },
+    results = {
+      {type = "item", name = "coal", amount = 1}
+    }
+  },
+  {
+    type = "recipe",
+    name = "heliopause-foundry-process-slag-deposit",
+    icon = foundry_resource_graphics["heliopause-foundry-slag-deposit"],
+    icon_size = 512,
+    enabled = false,
+    category = "crafting",
+    energy_required = 1,
+    ingredients = {
+      {type = "item", name = "heliopause-foundry-slag-deposit", amount = 1}
+    },
+    results = {
+      {type = "item", name = "tungsten-ore", amount = 1}
+    }
+  },
+  {
+    type = "recipe",
+    name = "heliopause-foundry-process-catalyst-crystal",
+    icon = foundry_resource_graphics["heliopause-foundry-catalyst-crystal"],
+    icon_size = 512,
+    enabled = false,
+    category = "crafting",
+    energy_required = 1,
+    ingredients = {
+      {type = "item", name = "heliopause-foundry-catalyst-crystal", amount = 1}
+    },
+    results = {
+      {type = "item", name = "calcite", amount = 1}
+    }
+  },
+  {
+    type = "recipe",
+    name = "heliopause-foundry-process-corrosive-coolant",
+    icon = foundry_resource_graphics["heliopause-foundry-corrosive-vent"],
+    icon_size = 512,
+    enabled = false,
+    category = "chemistry",
+    energy_required = 1,
+    ingredients = {
+      {type = "fluid", name = "heliopause-foundry-corrosive-coolant", amount = 10}
+    },
+    results = {
+      {type = "fluid", name = "sulfuric-acid", amount = 10}
+    }
+  }
+})
 
 data:extend({
   {
@@ -184,6 +368,22 @@ data:extend({
         icon = foundry_base_icon,
         icon_size = foundry_base_icon_size,
         use_icon_overlay_constant = true
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "heliopause-foundry-process-carbonized-regolith"
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "heliopause-foundry-process-slag-deposit"
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "heliopause-foundry-process-catalyst-crystal"
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "heliopause-foundry-process-corrosive-coolant"
       }
     },
 
