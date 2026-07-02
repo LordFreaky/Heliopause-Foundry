@@ -230,7 +230,7 @@ data:extend({
     icon = foundry_item_icons["heliopause-foundry-carbonized-regolith"],
     icon_size = 512,
     enabled = false,
-    category = "crafting",
+    categories = {"crafting"},
     energy_required = 1,
     ingredients = {
       {type = "item", name = "heliopause-foundry-carbonized-regolith", amount = 1}
@@ -245,7 +245,7 @@ data:extend({
     icon = foundry_item_icons["heliopause-foundry-slag-deposit"],
     icon_size = 512,
     enabled = false,
-    category = "crafting",
+    categories = {"crafting"},
     energy_required = 1,
     ingredients = {
       {type = "item", name = "heliopause-foundry-slag-deposit", amount = 1}
@@ -260,7 +260,7 @@ data:extend({
     icon = foundry_item_icons["heliopause-foundry-catalyst-crystal"],
     icon_size = 512,
     enabled = false,
-    category = "crafting",
+    categories = {"crafting"},
     energy_required = 1,
     ingredients = {
       {type = "item", name = "heliopause-foundry-catalyst-crystal", amount = 1}
@@ -275,7 +275,7 @@ data:extend({
     icon = foundry_fluid_icons["heliopause-foundry-corrosive-coolant"],
     icon_size = 512,
     enabled = false,
-    category = "chemistry",
+    categories = {"chemistry"},
     energy_required = 1,
     ingredients = {
       {type = "fluid", name = "heliopause-foundry-corrosive-coolant", amount = 10}
