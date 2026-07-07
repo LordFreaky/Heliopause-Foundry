@@ -5,6 +5,15 @@ local foundry_base_radius = 768
 local foundry_base_radius_squared = foundry_base_radius * foundry_base_radius
 local foundry_outside_tile = "out-of-map"
 
+local foundry_lava_tiles = {"lava", "lava-hot"}
+local foundry_lava_replacement_tile = "volcanic-soil-dark"
+
+local foundry_demolishers = {
+  "small-demolisher",
+  "medium-demolisher",
+  "big-demolisher"
+}
+
 local foundry_resource_replacements = {
   ["coal"] = "heliopause-foundry-carbonized-regolith",
   ["tungsten-ore"] = "heliopause-foundry-slag-deposit",
@@ -119,6 +128,46 @@ local function replace_resources_in_area(surface, area)
   end
 end
 
+local function replace_lava_in_area(surface, area)
+  if not surface or not surface.valid then return end
+  if surface.name ~= foundry_base_surface then return end
+
+  local tiles = {}
+
+  for _, tile in pairs(surface.find_tiles_filtered({area = area, name = foundry_lava_tiles})) do
+    tiles[#tiles + 1] = {
+      name = foundry_lava_replacement_tile,
+      position = tile.position
+    }
+  end
+
+  if #tiles > 0 then
+    surface.set_tiles(tiles, true, true, true, false)
+  end
+end
+
+local function remove_cliffs_in_area(surface, area)
+  if not surface or not surface.valid then return end
+  if surface.name ~= foundry_base_surface then return end
+
+  for _, cliff in pairs(surface.find_entities_filtered({area = area, type = "cliff"})) do
+    if cliff.valid then
+      cliff.destroy()
+    end
+  end
+end
+
+local function remove_demolishers_in_area(surface, area)
+  if not surface or not surface.valid then return end
+  if surface.name ~= foundry_base_surface then return end
+
+  for _, demolisher in pairs(surface.find_entities_filtered({area = area, name = foundry_demolishers})) do
+    if demolisher.valid then
+      demolisher.destroy()
+    end
+  end
+end
+
 local function is_inside_foundry_circle(position)
   local x = position.x or position[1] or 0
   local y = position.y or position[2] or 0
@@ -156,7 +205,10 @@ local function apply_circle_to_area(surface, area)
 end
 
 function foundry_surface.process_area(surface, area)
+  replace_lava_in_area(surface, area)
   apply_circle_to_area(surface, area)
+  remove_cliffs_in_area(surface, area)
+  remove_demolishers_in_area(surface, area)
   replace_resources_in_area(surface, area)
 end
 
